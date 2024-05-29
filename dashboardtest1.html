@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        h1 {
+            color: #333;
+        }
+        .category {
+            margin-bottom: 20px;
+        }
+        .category h2 {
+            background-color: #333;
+            color: #fff;
+            padding: 10px;
+            margin: 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border: 1px solid #ccc;
+        }
+        .form-group {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Dashboard</h1>
+
+    <div>
+        <h2>Add Category</h2>
+        <div class="form-group">
+            <input type="text" id="newCategoryName" placeholder="Category Name">
+            <button onclick="addCategory()">Add Category</button>
+        </div>
+    </div>
+
+    <div>
+        <h2>Categories</h2>
+        <div id="categories"></div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const categoriesContainer = document.getElementById('categories');
+            let categories = JSON.parse(localStorage.getItem('categories')) || [];
+
+            function renderCategories() {
+                categoriesContainer.innerHTML = '';
+                categories.forEach((category, categoryIndex) => {
+                    const categoryDiv = document.createElement('div');
+                    categoryDiv.classList.add('category');
+                    
+                    const categoryTitle = document.createElement('h2');
+                    categoryTitle.textContent = category.name;
+                    categoryDiv.appendChild(categoryTitle);
+
+                    const deleteCategoryButton = document.createElement('button');
+                    deleteCategoryButton.textContent = 'Delete Category';
+                    deleteCategoryButton.onclick = () => {
+                        categories.splice(categoryIndex, 1);
+                        saveCategories();
+                        renderCategories();
+                    };
+                    categoryDiv.appendChild(deleteCategoryButton);
+
+                    const productForm = document.createElement('div');
+                    productForm.classList.add('form-group');
+
+                    const productNameInput = document.createElement('input');
+                    productNameInput.type = 'text';
+                    productNameInput.placeholder = 'Product Name';
+                    productForm.appendChild(productNameInput);
+
+                    const productPriceInput = document.createElement('input');
+                    productPriceInput.type = 'number';
+                    productPriceInput.placeholder = 'Product Price';
+                    productForm.appendChild(productPriceInput);
+
+                    const productDescriptionInput = document.createElement('input');
+                    productDescriptionInput.type = 'text';
+                    productDescriptionInput.placeholder = 'Product Description';
+                    productForm.appendChild(productDescriptionInput);
+
+                    const addProductButton = document.createElement('button');
+                    addProductButton.textContent = 'Add Product';
+                    addProductButton.onclick = () => {
+                        const productName = productNameInput.value.trim();
+                        const productPrice = parseFloat(productPriceInput.value.trim());
+                        const productDescription = productDescriptionInput.value.trim();
+                        if (productName && !isNaN(productPrice)) {
+                            category.products.push({ name: productName, price: productPrice.toFixed(2), description: productDescription });
+                            saveCategories();
+                            renderCategories();
+                        }
+                    };
+                    productForm.appendChild(addProductButton);
+
+                    categoryDiv.appendChild(productForm);
+
+                    const table = document.createElement('table');
+                    const tableHeader = document.createElement('tr');
+                    tableHeader.innerHTML = '<th>Product</th><th>Price (€)</th><th>Description</th><th>Actions</th>';
+                    table.appendChild(tableHeader);
+
+                    category.products.forEach((product, productIndex) => {
+                        const tableRow = document.createElement('tr');
+                        const productName = document.createElement('td');
+                        productName.textContent = product.name;
+
+                        const productPrice = document.createElement('td');
+                        const priceInput = document.createElement('input');
+                        priceInput.type = 'number';
+                        priceInput.value = product.price;
+                        productPrice.appendChild(priceInput);
+
+                        const productDescription = document.createElement('td');
+                        const descriptionInput = document.createElement('input');
+                        descriptionInput.type = 'text';
+                        descriptionInput.value = product.description;
+                        productDescription.appendChild(descriptionInput);
+
+                        const actions = document.createElement('td');
+
+                        const saveChangesButton = document.createElement('button');
+                        saveChangesButton.textContent = 'Save Changes';
+                        saveChangesButton.onclick = () => {
+                            const newPrice = parseFloat(priceInput.value.trim());
+                            const newDescription = descriptionInput.value.trim();
+                            if (!isNaN(newPrice)) {
+                                categories[categoryIndex].products[productIndex].price = newPrice.toFixed(2);
+                                categories[categoryIndex].products[productIndex].description = newDescription;
+                                saveCategories();
+                                renderCategories();
+                            }
+                        };
+                        actions.appendChild(saveChangesButton);
+
+                        const deleteProductButton = document.createElement('button');
+                        deleteProductButton.textContent = 'Delete';
+                        deleteProductButton.onclick = () => {
+                            categories[categoryIndex].products.splice(productIndex, 1);
+                            saveCategories();
+                            renderCategories();
+                        };
+                        actions.appendChild(deleteProductButton);
+
+                        tableRow.appendChild(productName);
+                        tableRow.appendChild(productPrice);
+                        tableRow.appendChild(productDescription);
+                        tableRow.appendChild(actions);
+                        table.appendChild(tableRow);
+                    });
+
+                    categoryDiv.appendChild(table);
+                    categoriesContainer.appendChild(categoryDiv);
+                });
+            }
+
+            function saveCategories() {
+                localStorage.setItem('categories', JSON.stringify(categories));
+            }
+
+            window.addCategory = function() {
+                const newCategoryName = document.getElementById('newCategoryName').value.trim();
+                if (newCategoryName) {
+                    categories.push({ name: newCategoryName, products: [] });
+                    saveCategories();
+                    renderCategories();
+                }
+            };
+
+            renderCategories();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Index Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        
+        h1 {
+            text-align: center;
+        }
+        
+        .category {
+            margin-bottom: 20px;
+            text-align: center;
+            padding: 20px;
+            
+            
+        }
+        .category h2 {
+            background-color: #C7B135;
+            color: #fff;
+            padding: 10px;
+            margin: 0;
+            border-radius: 15px;
+            
+        }
+        .product {
+            background-color: #fff;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 15px;
+        }
+        .product p {
+            margin: 5px 0;
+        }
+        .product .product-name-price {
+            display: flex;
+            justify-content: space-between;
+        }
+        .product .product-description {
+            margin-top: 5px;
+            color: #777;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <h1>MENU</h1>
+    <div id="categories"></div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const categoriesContainer = document.getElementById('categories');
+            const categories = JSON.parse(localStorage.getItem('categories')) || [];
+
+            categories.forEach(category => {
+                const categoryDiv = document.createElement('div');
+                categoryDiv.classList.add('category');
+                
+                const categoryTitle = document.createElement('h2');
+                categoryTitle.textContent = category.name;
+                categoryDiv.appendChild(categoryTitle);
+
+                category.products.forEach(product => {
+                    const productDiv = document.createElement('div');
+                    productDiv.classList.add('product');
+
+                    const productNamePrice = document.createElement('div');
+                    productNamePrice.classList.add('product-name-price');
+
+                    const productName = document.createElement('p');
+                    productName.textContent = product.name;
+                    productNamePrice.appendChild(productName);
+
+                    const productPrice = document.createElement('p');
+                    productPrice.textContent = `€${product.price}`;
+                    productNamePrice.appendChild(productPrice);
+
+                    productDiv.appendChild(productNamePrice);
+
+                    const productDescription = document.createElement('p');
+                    productDescription.classList.add('product-description');
+                    productDescription.textContent = product.description;
+                    productDiv.appendChild(productDescription);
+
+                    categoryDiv.appendChild(productDiv);
+                });
+
+                categoriesContainer.appendChild(categoryDiv);
+            });
+        });
+    </script>
+</body>
+</html>
